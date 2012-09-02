@@ -1,0 +1,135 @@
+#!/bin/sh
+# File Managed by Puppet
+<% if operatingsystem == 'RedHat' or operatingsystem == 'CentOS' or operatingsystem == 'Scientific' %>
+# logstash        Startup script for logstash
+#
+# chkconfig: - 85 15
+# description: logstash is a NoSQL Graph Database
+<% elsif operatingsystem == 'Debian' or operatingsystem == 'Ubuntu' or operatingsystem == 'Mint' %>
+<% end %>
+### BEGIN INIT INFO
+# Provides:          logstash
+# Required-Start:    $local_fs $remote_fs $network 
+# Required-Stop:     $local_fs $remote_fs $network 
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start/stop logstash service
+### END INIT INFO
+
+# define where logstash is - this is the directory containing directories log, bin, conf etc
+LOGSTASH_HOME=${LOGSTASH_HOME:-"<%= scope.lookupvar('logstash::logstash_dir') %>"}
+
+# define the user under which logstash will run, or use 'RUNASIS' to run as the current user
+LOGSTASH_USER=${LOGSTASH_USER:-"<%= scope.lookupvar('logstash::process_user') %>"}
+
+# make sure java is in your path
+JAVAPTH=${JAVAPTH:-"/usr/local/jdk/bin"}
+
+# Lock and Pid files
+LOCKFILE=/var/lock/logstash
+PIDFILE=<%= scope.lookupvar('logstash::pid_file') %>
+
+if [ "$LOGSTASH_USER" = "RUNASIS" ]; then
+  SUBIT=""
+else
+  SUBIT="su - $LOGSTASH_USER -c "
+fi
+
+if [ -n "$LOGSTASH_CONSOLE" -a ! -d "$LOGSTASH_CONSOLE" ]; then
+  # ensure the file exists
+  touch $LOGSTASH_CONSOLE
+  if [ ! -z "$SUBIT" ]; then
+    chown $LOGSTASH_USER $LOGSTASH_CONSOLE
+  fi 
+fi
+
+if [ -n "$LOGSTASH_CONSOLE" -a ! -f "$LOGSTASH_CONSOLE" ]; then
+  echo "WARNING: location for saving console log invalid: $LOGSTASH_CONSOLE"
+  echo "WARNING: ignoring it and using /dev/null"
+  LOGSTASH_CONSOLE="/dev/null"
+fi
+
+#define what will be done with the console log
+LOGSTASH_CONSOLE=${LOGSTASH_CONSOLE:-"/dev/null"}
+
+# logstash Start command
+LOGSTASH_CMD_START="java -jar <%= scope.lookupvar('logstash::logstash_dir') %>/logstash-<%= scope.lookupvar('logstash::version') %>-monolithic.jar <%= scope.lookupvar('logstash::run_mode') %> -f <%= scope.lookupvar('logstash::config_dir') %> -l <%= scope.lookupvar('logstash::log_file') %> <%= scope.lookupvar('logstash::run_options') %>"
+
+# logstash Stop command
+LOGSTASH_CMD_STOP="cd $LOGSTASH_HOME; kill -15 $(cat $PIDFILE)"
+
+if [ -z "`echo $PATH | grep $JAVAPTH`" ]; then
+  export PATH=$PATH:$JAVAPTH
+fi
+
+if [ ! -d "$LOGSTASH_HOME" ]; then
+  echo LOGSTASH_HOME does not exist as a valid directory : $LOGSTASH_HOME
+  exit 1
+fi
+
+
+status () {
+  pslist=$( ps -ef | grep java | grep $LOGSTASH_USER | awk '{print $2}' | tr '\n' ' ' | sed -e s/\ $// )
+  if [ -n "$pslist" ]; then
+    echo "logstash (pid $pslist) is running result: 0"
+    return 0
+  fi
+  if [ -f $PIDFILE ]; then
+    echo "logstash dead but pid file ( $PIDFILE ) exists result: 1"
+    return 1
+  fi
+  if [ -f $LOCKFILE ]; then
+    echo "logstash dead but subsys ( $LOCKFILE ) locked result: 2"
+    return 2
+  fi
+  echo "logstash is stopped result: 3"
+  return 3
+}
+
+start () {
+  if [ -f $LOCKFILE ]; then
+    status
+    exit
+  fi
+  echo LOGSTASH_CMD_START = $LOGSTASH_CMD_START
+  if [ -z "$SUBIT" ]; then
+    eval $LOGSTASH_CMD_START >${LOGSTASH_CONSOLE} 2>&1 &
+    if [ "$?" -eq 0 ]; then
+      touch $LOCKFILE
+    fi
+  else
+    $SUBIT "$LOGSTASH_CMD_START >${LOGSTASH_CONSOLE} 2>&1 &"
+    if [ "$?" -eq 0 ]; then
+      touch $LOCKFILE
+    fi
+  fi
+}
+
+stop () {
+  echo LOGSTASH_CMD_STOP = $LOGSTASH_CMD_STOP
+  if [ -z "$SUBIT" ]; then
+    $LOGSTASH_CMD_STOP && rm -f $LOCKFILE
+  else
+    $SUBIT "$LOGSTASH_CMD_STOP" && rm -f $LOCKFILE
+  fi
+}
+
+case "$1" in
+start)
+    start
+    ;;
+stop)
+    stop
+    ;;
+restart)
+    stop
+    sleep 15
+    start
+    ;;
+status)
+    status
+    ;;
+*)
+    echo "usage: $0 (start|stop|restart|status|help)"
+esac
+

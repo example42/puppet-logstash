@@ -1,0 +1,20 @@
+# logstash - indexer instance
+#
+
+description     "logstash indexer instance"
+
+start on virtual-filesystems
+stop on runlevel [06]
+
+respawn
+respawn limit 5 30
+
+#env JAVA_OPTS='-Xms512m -Xmx512m'
+chdir <%= scope.lookupvar('logstash::logstash_dir') %>/
+setuid <%= scope.lookupvar('logstash::process_user') %>
+setgid <%= scope.lookupvar('logstash::process_user') %>
+console log
+
+script
+        exec java -jar logstash.jar <%= scope.lookupvar('logstash::run_mode') %> -f  <%= scope.lookupvar('logstash::config_dir') %> -l <%= scope.lookupvar('logstash::log_file') %> <%= scope.lookupvar('logstash::run_options') %>
+end script

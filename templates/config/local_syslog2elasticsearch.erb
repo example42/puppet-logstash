@@ -1,0 +1,15 @@
+input {
+  syslog {
+    port => 5544
+  }
+}
+
+output {
+  stdout {
+    debug => true
+  }
+  
+  elasticsearch {
+    embedded => true
+  }
+}
