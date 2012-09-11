@@ -43,8 +43,8 @@ class logstash::install inherits logstash {
       }
 
       file { 'logstash_link':
-        ensure => "${orientdb::logstash_dir}/${created_file}" ,
-        path   => "${orientdb::logstash_dir}/logstash.jar" ,
+        ensure => "${logstash::logstash_dir}/${created_file}" ,
+        path   => "${logstash::logstash_dir}/logstash.jar" ,
       }
 
     }
@@ -65,6 +65,11 @@ class logstash::install inherits logstash {
         user                     => 'root',
         auto_deploy              => true,
         enable                   => true,
+      }
+
+      file { 'logstash_link':
+        ensure => "${logstash::logstash_dir}/${created_file}" ,
+        path   => "${logstash::logstash_dir}/logstash.jar" ,
       }
 
     }

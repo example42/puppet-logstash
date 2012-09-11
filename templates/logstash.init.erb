@@ -28,6 +28,7 @@ JAVAPTH=${JAVAPTH:-"/usr/local/jdk/bin"}
 # Lock and Pid files
 LOCKFILE=/var/lock/logstash
 PIDFILE=<%= scope.lookupvar('logstash::pid_file') %>
+touch $PIDFILE
 
 if [ "$LOGSTASH_USER" = "RUNASIS" ]; then
   SUBIT=""
@@ -87,15 +88,16 @@ status () {
 }
 
 start () {
-  if [ -f $LOCKFILE ]; then
-    status
-    exit
-  fi
+#  if [ -f $LOCKFILE ]; then
+#    status
+#    exit
+#  fi
   echo LOGSTASH_CMD_START = $LOGSTASH_CMD_START
   if [ -z "$SUBIT" ]; then
     eval $LOGSTASH_CMD_START >${LOGSTASH_CONSOLE} 2>&1 &
     if [ "$?" -eq 0 ]; then
       touch $LOCKFILE
+      ps -ef | grep java | grep $LOGSTASH_USER | awk '{print $2}' | tr '\n' ' ' | sed -e s/\ $// > $PIDFILE
     fi
   else
     $SUBIT "$LOGSTASH_CMD_START >${LOGSTASH_CONSOLE} 2>&1 &"

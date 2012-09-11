@@ -33,8 +33,21 @@ class logstash::service inherits logstash {
         enable     => $logstash::manage_service_enable,
         hasstatus  => $logstash::service_status,
         pattern    => $logstash::process,
-        require    => File['logstash.init'],
       }
+
+    if $logstash::bool_use_upstart == true {
+      file { 'logstash.upstart':
+        ensure  => $logstash::manage_file,
+        path    => '/etc/init/logstash.conf',
+        mode    => '0644',
+        owner   => $logstash::config_file_owner,
+        group   => $logstash::config_file_group,
+        require => Class['logstash::install'],
+        before  => Service['logstash'],
+        content => template($logstash::upstart_template),
+        audit   => $logstash::manage_audit,
+      }
+    } else {
       file { 'logstash.init':
         ensure  => $logstash::manage_file,
         path    => '/etc/init.d/logstash',
@@ -42,10 +55,12 @@ class logstash::service inherits logstash {
         owner   => $logstash::config_file_owner,
         group   => $logstash::config_file_group,
         require => Class['logstash::install'],
-        notify  => $logstash::manage_service_autorestart,
+        before  => Service['logstash'],
         content => template($logstash::init_script_template),
         audit   => $logstash::manage_audit,
       }
+    }
+
     }
 
     default: { }

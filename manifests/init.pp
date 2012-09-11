@@ -63,7 +63,17 @@
 #
 # [*init_script_template*]
 #   The template to use to create the init script.
+#   Use this to customize the default file.
 #
+# [*upstart_template*]
+#   The template to use to create the upstart conf file.
+#   Use this to customize the default file.
+#   Note that upstart and init_script are alternative.
+#
+# [*use_upstart*]
+#   If to use upstart to manage the service. Default: true
+#
+# Standard class parameters
 # Standard class parameters
 # Define the general class behaviour and customizations
 #
@@ -267,6 +277,8 @@ class logstash (
   $install_precommand    = params_lookup( 'install_precommand' ),
   $install_postcommand   = params_lookup( 'install_postcommand' ),
   $init_script_template  = params_lookup( 'init_script_template' ),
+  $upstart_template      = params_lookup( 'upstart_template' ),
+  $use_upstart           = params_lookup( 'use_upstart' ),
   $my_class              = params_lookup( 'my_class' ),
   $source                = params_lookup( 'source' ),
   $source_dir            = params_lookup( 'source_dir' ),
@@ -312,6 +324,7 @@ class logstash (
 
   ### Variables reduced to booleans
   $bool_install_prerequisites=any2bool($install_prerequisites)
+  $bool_use_upstart=any2bool($use_upstart)
   $bool_create_user=any2bool($create_user)
   $bool_source_dir_purge=any2bool($source_dir_purge)
   $bool_service_autorestart=any2bool($service_autorestart)
@@ -439,7 +452,8 @@ class logstash (
   }
 
   # The whole logstash configuration directory can be recursively overriden
-  if $logstash::source_dir {
+  if $logstash::source_dir
+  or $logstash::install != 'package' {
     file { 'logstash.dir':
         ensure  => directory,
         path    => $logstash::config_dir,

@@ -25,7 +25,10 @@ class logstash::params {
   $install_precommand = ''
   $install_postcommand = ''
   $init_script_template = 'logstash/logstash.init.erb'
+  $upstart_template = 'logstash/logstash.upstart.erb'
   $base_install_source='http://semicomplete.com/files/logstash'
+
+  $use_upstart = false
 
   ### Application related parameters
 
@@ -86,7 +89,7 @@ class logstash::params {
     default => '/var/log/logstash/logstash.log',
   }
 
-  $port = '8300'
+  $port = '9300'
   $protocol = 'tcp'
 
   # General Settings

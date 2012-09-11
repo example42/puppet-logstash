@@ -13,7 +13,7 @@ class logstash::user inherits logstash {
     comment    => "${logstash::process_user} user",
     password   => '!',
     managehome => false,
-    home       => $logstash::real_logstash_dir,
+    home       => $logstash::logstash_dir,
     shell      => '/bin/bash',
     before     => Group['logstash'] ,
   }

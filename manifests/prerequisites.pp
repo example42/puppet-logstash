@@ -16,6 +16,10 @@
 #
 class logstash::prerequisites {
 
-    include java
+  include java
 
+  case $::operatingsystem {
+    redhat,centos,scientific: { require yum::repo::monitoringsucks }
+    default: { }
+  }
 }
