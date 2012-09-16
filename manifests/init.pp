@@ -24,7 +24,7 @@
 #   Set to true if you want the module to create the process user of logstash
 #   (as defined in $logstagh::process_user). Default: true
 #   Note: User is not created when $logstash::install is package
-#  
+#
 # [*version*]
 #   The logstash version you want to install. The default install_source is
 #   calculated according to it.
@@ -169,7 +169,8 @@
 #   and $firewall_tool
 #
 # [*firewall_src*]
-#   Define which source ip/net allow for firewalling logstash. Default: 0.0.0.0/0
+#   Define which source ip/net allow for firewalling logstash.
+#   Default: 0.0.0.0/0
 #   Can be defined also by the (top scope) variables $logstash_firewall_src
 #   and $firewall_src
 #

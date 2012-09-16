@@ -16,7 +16,7 @@ RSpec.configure do |c|
   end
 
   c.after :each do
-    FileUtils.remove_entry_secure(@puppetdir)
+    FileUtils.rm_rf(Dir.glob('/tmp/logstash20*') , :secure => true)
   end
 
   c.module_path = File.join(File.dirname(__FILE__), '../../')
