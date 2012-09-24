@@ -1,3 +1,27 @@
+# = Define: logstash::config
+#
+# This define creates a configuration file for logstash
+#
+# == Parameters
+#
+# [*source*]
+#   Sets the content of source parameter for configuration file
+#   If defined, this config file will have the param:
+#   source => $source
+#
+# [*template*]
+#   Sets the path to the template to use as content for configuration file
+#   If defined, logstash this config file will have the param:
+#   content => content("$template")
+#   NOTE: source and template parameters are mutually exclusive: don't use both
+#
+# [*options*]
+#   An hash of custom options to be used in templates for arbitrary settings.
+#
+# [*ensure*]
+#   Defines the status of the file. Default: present
+#   Set to 'absent' if you want to remove an existing config
+#
 define logstash::config (
   $source   = '',
   $template = '',
