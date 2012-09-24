@@ -1,7 +1,0 @@
-  # Source: https://gist.github.com/3182192
-  # stacktrace java as one message
-  multiline {
-    #type => "all" # no type means for all inputs
-    pattern => "(^.+Exception: .+)|(^\s+at .+)|(^\s+... \d+ more)|(^\s*Caused by:.+)"
-    what => "previous"
-  }

@@ -27,7 +27,7 @@ class logstash::params {
   $init_script_template = 'logstash/logstash.init.erb'
   $upstart_template = 'logstash/logstash.upstart.erb'
   $base_install_source='http://semicomplete.com/files/logstash'
-
+  $source_dir_patterns = ''
   $use_upstart = false
 
   ### Application related parameters

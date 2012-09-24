@@ -27,14 +27,16 @@ class logstash::skel inherits logstash {
     audit   => $logstash::manage_audit,
   }
 
-  file { 'logstash.dir_patterns':
-    ensure  => directory,
-    path    => "${logstash::logstash_dir}/patterns",
-    require => File['logstash.data_dir'],
-    owner   => $logstash::process_user,
-    group   => $logstash::process_group,
-    audit   => $logstash::manage_audit,
-    recurse => true,
-    source  => "puppet:///modules/logstash/patterns",
+  if $logstash::source_dir_patterns {
+    file { 'logstash.dir_patterns':
+      ensure  => directory,
+      path    => "${logstash::logstash_dir}/patterns",
+      require => File['logstash.data_dir'],
+      owner   => $logstash::process_user,
+      group   => $logstash::process_group,
+      audit   => $logstash::manage_audit,
+      recurse => true,
+      source  => $logstash::source_dir_patterns,
+    }
   }
 }

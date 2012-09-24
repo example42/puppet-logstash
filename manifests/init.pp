@@ -73,7 +73,12 @@
 # [*use_upstart*]
 #   If to use upstart to manage the service. Default: true
 #
-# Standard class parameters
+# [*source_dir_patterns*]
+#   Path (in format: puppet:///modules/path) where that contains custom patterns
+#   to use with logstash. You have to refer to it in your grok stanzas as:
+#   patterns_dir => "<%= scope.lookupvar('logstash::logstash_dir') %>/patterns"
+#   Default blank. Stadard patterns are used.
+#
 # Standard class parameters
 # Define the general class behaviour and customizations
 #
@@ -279,6 +284,7 @@ class logstash (
   $init_script_template  = params_lookup( 'init_script_template' ),
   $upstart_template      = params_lookup( 'upstart_template' ),
   $use_upstart           = params_lookup( 'use_upstart' ),
+  $source_dir_patterns   = params_lookup( 'source_dir_patterns' ),
   $my_class              = params_lookup( 'my_class' ),
   $source                = params_lookup( 'source' ),
   $source_dir            = params_lookup( 'source_dir' ),
