@@ -19,7 +19,11 @@ class logstash::prerequisites {
   include java
 
   case $::operatingsystem {
-    redhat,centos,scientific: { require yum::repo::monitoringsucks }
+    redhat,centos,scientific: {
+      if $logstash::install == 'package' {
+        require yum::repo::monitoringsucks
+      }
+    }
     default: { }
   }
 }

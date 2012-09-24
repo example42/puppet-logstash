@@ -418,7 +418,10 @@ class logstash (
     default => $logstash::install_source,
   }
 
-  $logstash_dir = "${logstash::install_destination}/logstash"
+  $logstash_dir = $logstash::install ? {
+    package => "${logstash::params::base_data_dir}",
+    default => "${logstash::install_destination}/logstash",
+  }
 
   $real_data_dir = $logstash::data_dir ? {
     ''      => $logstash::install ? {

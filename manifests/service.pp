@@ -70,12 +70,14 @@ class logstash::service inherits logstash {
 
   ### Service monitoring, if enabled ( monitor => true )
   if $logstash::bool_monitor == true {
-    monitor::port { "logstash_${logstash::protocol}_${logstash::port}":
-      protocol => $logstash::protocol,
-      port     => $logstash::port,
-      target   => $logstash::monitor_target,
-      tool     => $logstash::monitor_tool,
-      enable   => $logstash::manage_monitor,
+    if $logstash::run_mode == 'web' {
+      monitor::port { "logstash_${logstash::protocol}_${logstash::port}":
+        protocol => $logstash::protocol,
+        port     => $logstash::port,
+        target   => $logstash::monitor_target,
+        tool     => $logstash::monitor_tool,
+        enable   => $logstash::manage_monitor,
+      }
     }
     monitor::process { 'logstash_process':
       process  => $logstash::process,

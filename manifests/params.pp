@@ -73,7 +73,7 @@ class logstash::params {
   }
 
   $config_dir = $::operatingsystem ? {
-    default => '/etc/logstash/',
+    default => '/etc/logstash',
   }
 
   $data_dir = ''
@@ -89,7 +89,7 @@ class logstash::params {
     default => '/var/log/logstash/logstash.log',
   }
 
-  $port = '9300'
+  $port = '9292'
   $protocol = 'tcp'
 
   # General Settings
@@ -99,6 +99,7 @@ class logstash::params {
   $source_dir_purge = false
   $template = ''
   $options = ''
+  $service_autorestart = true
   $absent = false
   $disable = false
   $disableboot = false

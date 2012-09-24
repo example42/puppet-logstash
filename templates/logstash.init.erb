@@ -56,9 +56,6 @@ LOGSTASH_CONSOLE=${LOGSTASH_CONSOLE:-"/dev/null"}
 # logstash Start command
 LOGSTASH_CMD_START="java -jar <%= scope.lookupvar('logstash::logstash_dir') %>/logstash-<%= scope.lookupvar('logstash::version') %>-monolithic.jar <%= scope.lookupvar('logstash::run_mode') %> -f <%= scope.lookupvar('logstash::config_dir') %> -l <%= scope.lookupvar('logstash::log_file') %> <%= scope.lookupvar('logstash::run_options') %>"
 
-# logstash Stop command
-LOGSTASH_CMD_STOP="cd $LOGSTASH_HOME; kill -15 $(cat $PIDFILE)"
-
 if [ -z "`echo $PATH | grep $JAVAPTH`" ]; then
   export PATH=$PATH:$JAVAPTH
 fi
@@ -108,7 +105,8 @@ start () {
 }
 
 stop () {
-  echo LOGSTASH_CMD_STOP = $LOGSTASH_CMD_STOP
+  # logstash Stop command
+  LOGSTASH_CMD_STOP="cd $LOGSTASH_HOME; kill -15 $(ps -ef | grep java | grep $LOGSTASH_USER | awk '{print $2}' | tr '\n' ' ' | sed -e s/\ $//)"
   if [ -z "$SUBIT" ]; then
     $LOGSTASH_CMD_STOP && rm -f $LOCKFILE
   else

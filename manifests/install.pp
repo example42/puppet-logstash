@@ -40,6 +40,7 @@ class logstash::install inherits logstash {
         owner               => $logstash::process_user,
         group               => $logstash::process_user,
         require             => [ User[$logstash::process_user] ],
+        before              => File ['logstash_link'],
       }
 
       file { 'logstash_link':
@@ -65,6 +66,7 @@ class logstash::install inherits logstash {
         user                     => 'root',
         auto_deploy              => true,
         enable                   => true,
+        before                   => File ['logstash_link'],
       }
 
       file { 'logstash_link':
