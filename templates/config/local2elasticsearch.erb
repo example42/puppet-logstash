@@ -1,0 +1,13 @@
+input {
+  file {
+    type => "syslog"
+    path => [ "/var/log/*.log", "/var/log/messages", "/var/log/syslog" ]
+  }
+}
+
+output {
+  elasticsearch {
+    host => "log.<%= domain %>"
+  }
+}
+
