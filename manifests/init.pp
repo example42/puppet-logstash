@@ -14,6 +14,9 @@
 #   The explicit options to pass to the monolithic jar when starting it.
 #   This value is appended to exiting -f and -l parameters
 #
+# [*maxopenfiles*]
+#   The ulimit settings for max open files for logstash.
+#
 # [*install_prerequisites*]
 #   Set to false if you don't want install this module's prerequisites.
 #   (It may be useful if the resources provided the prerequisites are already
@@ -272,80 +275,79 @@
 #   Alessandro Franceschi <al@lab42.it/>
 #
 class logstash (
-  $run_mode              = params_lookup( 'run_mode' ),
-  $run_options           = params_lookup( 'run_options' ),
-  $install_prerequisites = params_lookup( 'install_prerequisites' ),
-  $create_user           = params_lookup( 'create_user' ),
-  $version               = params_lookup( 'version' ),
-  $install               = params_lookup( 'install' ),
-  $install_source        = params_lookup( 'install_source' ),
-  $install_destination   = params_lookup( 'install_destination' ),
-  $install_precommand    = params_lookup( 'install_precommand' ),
-  $install_postcommand   = params_lookup( 'install_postcommand' ),
-  $init_script_template  = params_lookup( 'init_script_template' ),
-  $upstart_template      = params_lookup( 'upstart_template' ),
-  $use_upstart           = params_lookup( 'use_upstart' ),
-  $source_dir_patterns   = params_lookup( 'source_dir_patterns' ),
-  $my_class              = params_lookup( 'my_class' ),
-  $source                = params_lookup( 'source' ),
-  $source_dir            = params_lookup( 'source_dir' ),
-  $source_dir_purge      = params_lookup( 'source_dir_purge' ),
-  $template              = params_lookup( 'template' ),
-  $service_autorestart   = params_lookup( 'service_autorestart' , 'global' ),
-  $options               = params_lookup( 'options' ),
-  $absent                = params_lookup( 'absent' ),
-  $disable               = params_lookup( 'disable' ),
-  $disableboot           = params_lookup( 'disableboot' ),
-  $monitor               = params_lookup( 'monitor' , 'global' ),
-  $monitor_tool          = params_lookup( 'monitor_tool' , 'global' ),
-  $monitor_target        = params_lookup( 'monitor_target' , 'global' ),
-  $puppi                 = params_lookup( 'puppi' , 'global' ),
-  $puppi_helper          = params_lookup( 'puppi_helper' , 'global' ),
-  $firewall              = params_lookup( 'firewall' , 'global' ),
-  $firewall_tool         = params_lookup( 'firewall_tool' , 'global' ),
-  $firewall_src          = params_lookup( 'firewall_src' , 'global' ),
-  $firewall_dst          = params_lookup( 'firewall_dst' , 'global' ),
-  $debug                 = params_lookup( 'debug' , 'global' ),
-  $audit_only            = params_lookup( 'audit_only' , 'global' ),
-  $package               = params_lookup( 'package' ),
-  $service               = params_lookup( 'service' ),
-  $service_status        = params_lookup( 'service_status' ),
-  $process               = params_lookup( 'process' ),
-  $process_args          = params_lookup( 'process_args' ),
-  $process_user          = params_lookup( 'process_user' ),
-  $process_group         = params_lookup( 'process_group' ),
-  $config_dir            = params_lookup( 'config_dir' ),
-  $config_file           = params_lookup( 'config_file' ),
-  $config_file_mode      = params_lookup( 'config_file_mode' ),
-  $config_file_owner     = params_lookup( 'config_file_owner' ),
-  $config_file_group     = params_lookup( 'config_file_group' ),
-  $config_file_init      = params_lookup( 'config_file_init' ),
-  $pid_file              = params_lookup( 'pid_file' ),
-  $data_dir              = params_lookup( 'data_dir' ),
-  $log_dir               = params_lookup( 'log_dir' ),
-  $log_file              = params_lookup( 'log_file' ),
-  $port                  = params_lookup( 'port' ),
-  $protocol              = params_lookup( 'protocol' )
-  ) inherits logstash::params {
+  $run_mode              = params_lookup('run_mode'),
+  $run_options           = params_lookup('run_options'),
+  $maxopenfiles          = params_lookup('maxopenfiles'),
+  $install_prerequisites = params_lookup('install_prerequisites'),
+  $create_user           = params_lookup('create_user'),
+  $version               = params_lookup('version'),
+  $install               = params_lookup('install'),
+  $install_source        = params_lookup('install_source'),
+  $install_destination   = params_lookup('install_destination'),
+  $install_precommand    = params_lookup('install_precommand'),
+  $install_postcommand   = params_lookup('install_postcommand'),
+  $init_script_template  = params_lookup('init_script_template'),
+  $upstart_template      = params_lookup('upstart_template'),
+  $use_upstart           = params_lookup('use_upstart'),
+  $source_dir_patterns   = params_lookup('source_dir_patterns'),
+  $my_class              = params_lookup('my_class'),
+  $source                = params_lookup('source'),
+  $source_dir            = params_lookup('source_dir'),
+  $source_dir_purge      = params_lookup('source_dir_purge'),
+  $template              = params_lookup('template'),
+  $service_autorestart   = params_lookup('service_autorestart', 'global'),
+  $options               = params_lookup('options'),
+  $absent                = params_lookup('absent'),
+  $disable               = params_lookup('disable'),
+  $disableboot           = params_lookup('disableboot'),
+  $monitor               = params_lookup('monitor', 'global'),
+  $monitor_tool          = params_lookup('monitor_tool', 'global'),
+  $monitor_target        = params_lookup('monitor_target', 'global'),
+  $puppi                 = params_lookup('puppi', 'global'),
+  $puppi_helper          = params_lookup('puppi_helper', 'global'),
+  $firewall              = params_lookup('firewall', 'global'),
+  $firewall_tool         = params_lookup('firewall_tool', 'global'),
+  $firewall_src          = params_lookup('firewall_src', 'global'),
+  $firewall_dst          = params_lookup('firewall_dst', 'global'),
+  $debug                 = params_lookup('debug', 'global'),
+  $audit_only            = params_lookup('audit_only', 'global'),
+  $package               = params_lookup('package'),
+  $service               = params_lookup('service'),
+  $service_status        = params_lookup('service_status'),
+  $process               = params_lookup('process'),
+  $process_args          = params_lookup('process_args'),
+  $process_user          = params_lookup('process_user'),
+  $process_group         = params_lookup('process_group'),
+  $config_dir            = params_lookup('config_dir'),
+  $config_file           = params_lookup('config_file'),
+  $config_file_mode      = params_lookup('config_file_mode'),
+  $config_file_owner     = params_lookup('config_file_owner'),
+  $config_file_group     = params_lookup('config_file_group'),
+  $config_file_init      = params_lookup('config_file_init'),
+  $pid_file              = params_lookup('pid_file'),
+  $data_dir              = params_lookup('data_dir'),
+  $log_dir               = params_lookup('log_dir'),
+  $log_file              = params_lookup('log_file'),
+  $port                  = params_lookup('port'),
+  $protocol              = params_lookup('protocol')) inherits logstash::params {
+  # ## VARIABLES
 
-  ### VARIABLES
+  # ## Variables reduced to booleans
+  $bool_install_prerequisites = any2bool($install_prerequisites)
+  $bool_use_upstart = any2bool($use_upstart)
+  $bool_create_user = any2bool($create_user)
+  $bool_source_dir_purge = any2bool($source_dir_purge)
+  $bool_service_autorestart = any2bool($service_autorestart)
+  $bool_absent = any2bool($absent)
+  $bool_disable = any2bool($disable)
+  $bool_disableboot = any2bool($disableboot)
+  $bool_monitor = any2bool($monitor)
+  $bool_puppi = any2bool($puppi)
+  $bool_firewall = any2bool($firewall)
+  $bool_debug = any2bool($debug)
+  $bool_audit_only = any2bool($audit_only)
 
-  ### Variables reduced to booleans
-  $bool_install_prerequisites=any2bool($install_prerequisites)
-  $bool_use_upstart=any2bool($use_upstart)
-  $bool_create_user=any2bool($create_user)
-  $bool_source_dir_purge=any2bool($source_dir_purge)
-  $bool_service_autorestart=any2bool($service_autorestart)
-  $bool_absent=any2bool($absent)
-  $bool_disable=any2bool($disable)
-  $bool_disableboot=any2bool($disableboot)
-  $bool_monitor=any2bool($monitor)
-  $bool_puppi=any2bool($puppi)
-  $bool_firewall=any2bool($firewall)
-  $bool_debug=any2bool($debug)
-  $bool_audit_only=any2bool($audit_only)
-
-  ### Definition of some variables used in the module
+  # ## Definition of some variables used in the module
   $manage_package = $logstash::bool_absent ? {
     true  => 'absent',
     false => 'present',
@@ -364,15 +366,15 @@ class logstash (
 
   $manage_service_ensure = $logstash::bool_disable ? {
     true    => 'stopped',
-    default =>  $logstash::bool_absent ? {
+    default => $logstash::bool_absent ? {
       true    => 'stopped',
       default => 'running',
     },
   }
 
   $manage_service_autorestart = $logstash::bool_service_autorestart ? {
-    true    => Service[logstash],
-    false   => undef,
+    true  => Service[logstash],
+    false => undef,
   }
 
   $manage_file = $logstash::bool_absent ? {
@@ -380,16 +382,13 @@ class logstash (
     default => 'present',
   }
 
-  if $logstash::bool_absent == true
-  or $logstash::bool_disable == true
-  or $logstash::bool_disableboot == true {
+  if $logstash::bool_absent == true or $logstash::bool_disable == true or $logstash::bool_disableboot == true {
     $manage_monitor = false
   } else {
     $manage_monitor = true
   }
 
-  if $logstash::bool_absent == true
-  or $logstash::bool_disable == true {
+  if $logstash::bool_absent == true or $logstash::bool_disable == true {
     $manage_firewall = false
   } else {
     $manage_firewall = true
@@ -406,21 +405,21 @@ class logstash (
   }
 
   $manage_file_source = $logstash::source ? {
-    ''        => undef,
-    default   => $logstash::source,
+    ''      => undef,
+    default => $logstash::source,
   }
 
   $manage_file_content = $logstash::template ? {
-    ''        => undef,
-    default   => template($logstash::template),
+    ''      => undef,
+    default => template($logstash::template),
   }
 
   $manage_source_dir = $logstash::source_dir ? {
-    ''        => undef,
-    default   => $logstash::source_dir,
+    ''      => undef,
+    default => $logstash::source_dir,
   }
 
-  ### Calculations of variables whose value depends on different params
+  # ## Calculations of variables whose value depends on different params
   $real_install_source = $logstash::install_source ? {
     ''      => "${logstash::params::base_install_source}/logstash-${logstash::version}-monolithic.jar",
     default => $logstash::install_source,
@@ -439,7 +438,7 @@ class logstash (
     default => $logstash::data_dir,
   }
 
-  ### Managed resources
+  # ## Managed resources
   # Installation is managed in a dedicated class
   require logstash::install
 
@@ -463,36 +462,36 @@ class logstash (
   }
 
   # The whole logstash configuration directory can be recursively overriden
-  if $logstash::source_dir
-  or $logstash::install != 'package' {
+  if $logstash::source_dir or $logstash::install != 'package' {
     file { 'logstash.dir':
-        ensure  => directory,
-        path    => $logstash::config_dir,
-        require => Class['logstash::install'],
-        owner   => $logstash::process_user,
-        group   => $logstash::process_group,
-        notify  => $logstash::manage_service_autorestart,
-        source  => $logstash::manage_source_dir,
-        recurse => true,
-        purge   => $logstash::bool_source_dir_purge,
-        replace => $logstash::manage_file_replace,
-        audit   => $logstash::manage_audit,
-      }
+      ensure  => directory,
+      path    => $logstash::config_dir,
+      require => Class['logstash::install'],
+      owner   => $logstash::process_user,
+      group   => $logstash::process_group,
+      notify  => $logstash::manage_service_autorestart,
+      source  => $logstash::manage_source_dir,
+      recurse => true,
+      purge   => $logstash::bool_source_dir_purge,
+      replace => $logstash::manage_file_replace,
+      audit   => $logstash::manage_audit,
     }
+  }
 
-  ### Include prerequisites class
+  # ## Include prerequisites class
   if $logstash::bool_install_prerequisites {
     include logstash::prerequisites
   }
 
-  ### Include custom class if $my_class is set
+  # ## Include custom class if $my_class is set
   if $logstash::my_class {
     include $logstash::my_class
   }
 
-  ### Provide puppi data, if enabled ( puppi => true )
+  # ## Provide puppi data, if enabled ( puppi => true )
   if $logstash::bool_puppi == true {
-    $classvars=get_class_args()
+    $classvars = get_class_args()
+
     puppi::ze { 'logstash':
       ensure    => $logstash::manage_file,
       variables => $classvars,
@@ -500,8 +499,7 @@ class logstash (
     }
   }
 
-
-  ### Debugging, if enabled ( debug => true )
+  # ## Debugging, if enabled ( debug => true )
   if $logstash::bool_debug == true {
     file { 'debug_logstash':
       ensure  => $logstash::manage_file,
@@ -509,7 +507,8 @@ class logstash (
       mode    => '0640',
       owner   => 'root',
       group   => 'root',
-      content => inline_template('<%= scope.to_hash.reject { |k,v| k.to_s =~ /(uptime.*|path|timestamp|free|.*password.*|.*psk.*|.*key)/ }.to_yaml %>'),
+      content => inline_template('<%= scope.to_hash.reject { |k,v| k.to_s =~ /(uptime.*|path|timestamp|free|.*password.*|.*psk.*|.*key)/ }.to_yaml %>'
+      ),
     }
   }
 
