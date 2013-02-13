@@ -16,6 +16,12 @@
 # Short-Description: Start/stop logstash service
 ### END INIT INFO
 
+<% if scope.lookupvar('logstash::maxopenfiles') != '' -%>
+
+# allow changing the per-process open files limit:
+ulimit -n <%= scope.lookupvar('logstash::maxopenfiles') %>
+<% end -%>
+
 # define where logstash is - this is the directory containing directories log, bin, conf etc
 LOGSTASH_HOME=${LOGSTASH_HOME:-"<%= scope.lookupvar('logstash::logstash_dir') %>"}
 

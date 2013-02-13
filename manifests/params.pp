@@ -13,8 +13,7 @@
 # It may be imported or inherited by other classes
 #
 class logstash::params {
-
-  ### Module specific parameters
+  # ## Module specific parameters
   $run_mode = 'agent'
   $run_options = ''
   $install_prerequisites = true
@@ -26,11 +25,12 @@ class logstash::params {
   $install_postcommand = ''
   $init_script_template = 'logstash/logstash.init.erb'
   $upstart_template = 'logstash/logstash.upstart.erb'
-  $base_install_source='http://semicomplete.com/files/logstash'
+  $base_install_source = 'http://semicomplete.com/files/logstash'
   $source_dir_patterns = ''
   $use_upstart = false
+  $maxopenfiles = ''
 
-  ### Application related parameters
+  # ## Application related parameters
 
   $package = $::operatingsystem ? {
     default => 'logstash',
@@ -108,7 +108,7 @@ class logstash::params {
   $disable = false
   $disableboot = false
 
-  ### General module variables that can have a site or per module default
+  # ## General module variables that can have a site or per module default
   $monitor = false
   $monitor_tool = ''
   $monitor_target = $::ipaddress
