@@ -1,4 +1,4 @@
-= Puppet module: logstash
+# Puppet module: logstash
 
 This is a Puppet logstash module from the second generation of Example42 Puppet Modules.
 
@@ -14,7 +14,7 @@ This module requires functions provided by the Example42 Puppi module.
 
 For detailed info about the logic and usage patterns of Example42 modules read README.usage on Example42 main modules set.
 
-== USAGE - Module Specific Parameters
+## USAGE - Module Specific Parameters
 
 * Launch in agent mode (default) with extra parameters to enable the web interface
         class { "logstash":
@@ -27,7 +27,7 @@ For detailed info about the logic and usage patterns of Example42 modules read R
         }
 
 
-== USAGE - Basic management
+## USAGE - Basic management
 
 * Install logstash using your distro package, if available
 
@@ -71,7 +71,7 @@ For detailed info about the logic and usage patterns of Example42 modules read R
         }
 
 
-== USAGE - Overrides and Customizations
+## USAGE - Overrides and Customizations
 * Use custom sources for main config file 
 
         class { "logstash":
@@ -99,7 +99,7 @@ For detailed info about the logic and usage patterns of Example42 modules read R
         }
 
 
-== USAGE - Example42 extensions management 
+## USAGE - Example42 extensions management 
 * Activate puppi (recommended, but disabled by default)
   Note that this option requires the usage of Example42 puppi module
 
