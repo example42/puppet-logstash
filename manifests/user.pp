@@ -15,13 +15,13 @@ class logstash::user inherits logstash {
     managehome => false,
     home       => $logstash::logstash_dir,
     shell      => '/bin/bash',
-    before     => Group['logstash'] ,
+    before     => Group[$logstash::process_group] ,
   }
-  @group { $logstash::process_user :
+  @group { $logstash::process_group :
     ensure     => $logstash::manage_file,
   }
 
   User <| title == $logstash::process_user |>
-  Group <| title == $logstash::process_user |>
+  Group <| title == $logstash::process_group |>
 
 }
