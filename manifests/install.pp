@@ -29,33 +29,19 @@ class logstash::install inherits logstash {
       if $logstash::bool_create_user == true {
         require logstash::user
         
-        puppi::netinstall { 'netinstall_logstash':
-	        url                 => $logstash::real_install_source,
-	        destination_dir     => $logstash::logstash_dir,
-	        extract_command     => 'cp ',
-	        preextract_command  => $logstash::install_precommand,
-	        extracted_dir       => $created_file,
-	        owner               => $logstash::process_user,
-	        group               => $logstash::process_user,
-	        require             => [ User[$logstash::process_user] ],
-	        before              => File ['logstash_link'],
-	      }
-      }
-      else {
-        puppi::netinstall { 'netinstall_logstash':
-	        url                 => $logstash::real_install_source,
-	        destination_dir     => $logstash::logstash_dir,
-	        extract_command     => 'cp ',
-	        preextract_command  => $logstash::install_precommand,
-	        extracted_dir       => $created_file,
-	        owner               => $logstash::process_user,
-	        group               => $logstash::process_user,
-	        before              => File ['logstash_link'],
-	      }
       }
       include logstash::skel
 
-      
+      puppi::netinstall { 'netinstall_logstash':
+        url                 => $logstash::real_install_source,
+        destination_dir     => $logstash::logstash_dir,
+        extract_command     => 'cp ',
+        preextract_command  => $logstash::install_precommand,
+        extracted_dir       => $created_file,
+        owner               => $logstash::process_user,
+        group               => $logstash::process_user,
+        before              => File ['logstash_link'],
+      }
 
       file { 'logstash_link':
         ensure  => "${logstash::logstash_dir}/${created_file}" ,
