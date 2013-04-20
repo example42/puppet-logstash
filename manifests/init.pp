@@ -11,7 +11,7 @@
 #   Define logstash run mode: agent web . Default: agent
 #
 # [*run_options*]
-#   The explicit options to pass to the monolithic jar when starting it.
+#   The explicit options to pass to the logstash jar when starting it.
 #   This value is appended to exiting -f and -l parameters
 #
 # [*maxopenfiles*]
@@ -31,6 +31,13 @@
 # [*version*]
 #   The logstash version you want to install. The default install_source is
 #   calculated according to it.
+#
+# [*jartype*]
+#   The logstash java package type. Default monolithic
+#     - monolithic - As of 1.1.10 this is the more stable package, but it has 
+#       a slower startup time.
+#     - flatjar    - As of 1.1.10 this is a less stable package, but it has 
+#       a much faster startup time.
 #
 # [*install*]
 #   Kind of installation to attempt:
@@ -281,6 +288,7 @@ class logstash (
   $install_prerequisites = params_lookup('install_prerequisites'),
   $create_user           = params_lookup('create_user'),
   $version               = params_lookup('version'),
+  $jartype               = params_lookup('jartype'),
   $install               = params_lookup('install'),
   $install_source        = params_lookup('install_source'),
   $install_destination   = params_lookup('install_destination'),
@@ -421,7 +429,7 @@ class logstash (
 
   # ## Calculations of variables whose value depends on different params
   $real_install_source = $logstash::install_source ? {
-    ''      => "${logstash::params::base_install_source}/logstash-${logstash::version}-monolithic.jar",
+    ''      => "${logstash::params::base_install_source}/logstash-${logstash::version}-${logstash::jartype}.jar",
     default => $logstash::install_source,
   }
 
