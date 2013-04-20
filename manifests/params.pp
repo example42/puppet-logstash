@@ -19,13 +19,14 @@ class logstash::params {
   $install_prerequisites = true
   $create_user = true
   $version = '1.1.1'
+  $jartype = 'monolithic'
   $install = 'source'
   $install_destination = '/opt'
   $install_precommand = ''
   $install_postcommand = ''
   $init_script_template = 'logstash/logstash.init.erb'
   $upstart_template = 'logstash/logstash.upstart.erb'
-  $base_install_source = 'http://semicomplete.com/files/logstash'
+  $base_install_source = 'https://logstash.objects.dreamhost.com/release'
   $source_dir_patterns = ''
   $use_upstart = false
   $maxopenfiles = ''
