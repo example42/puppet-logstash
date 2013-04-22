@@ -16,7 +16,7 @@ describe 'logstash' do
     let(:params) { {:version => '1.1.1' } }
     it 'should install version 1.1.1 via netinstall' do
       content = catalogue.resource('puppi::netinstall', 'netinstall_logstash').send(:parameters)[:url]
-      content.should match "http://semicomplete.com/files/logstash/logstash-1.1.1-monolithic.jar"
+      content.should match "http://logstash.objects.dreamhost.com/release/logstash-1.1.1-monolithic.jar"
     end
   end
 
@@ -24,7 +24,7 @@ describe 'logstash' do
     let(:params) { {:version => '1.1.1' , :install => 'puppi' } }
     it 'should install version 1.1.1 via puppi' do
       content = catalogue.resource('puppi::project::war', 'logstash').send(:parameters)[:source]
-      content.should match "http://semicomplete.com/files/logstash/logstash-1.1.1-monolithic.jar"
+      content.should match "http://logstash.objects.dreamhost.com/release/logstash-1.1.1-monolithic.jar"
     end
   end
 
