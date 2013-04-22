@@ -26,7 +26,7 @@ class logstash::params {
   $install_postcommand = ''
   $init_script_template = 'logstash/logstash.init.erb'
   $upstart_template = 'logstash/logstash.upstart.erb'
-  $base_install_source = 'https://logstash.objects.dreamhost.com/release'
+  $base_install_source = 'http://logstash.objects.dreamhost.com/release'
   $source_dir_patterns = ''
   $use_upstart = false
   $maxopenfiles = ''
