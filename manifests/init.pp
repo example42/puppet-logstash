@@ -230,6 +230,9 @@
 # [*process_user*]
 #   The name of the user logstash runs with. Used by puppi and monitor.
 #
+# [*process_group*]
+#   The name of the group logstash runs with. Used by puppi and monitor.
+#
 # [*config_dir*]
 #   Main configuration directory. Used by puppi
 #

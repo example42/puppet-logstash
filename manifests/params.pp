@@ -61,6 +61,10 @@ class logstash::params {
     default => 'logstash',
   }
 
+  $config_file = $::operatingsystem ? {
+    default => '/etc/logstash/logstash.conf',
+  }
+
   $config_file_mode = $::operatingsystem ? {
     default => '0644',
   }
