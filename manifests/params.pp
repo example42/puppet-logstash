@@ -18,8 +18,8 @@ class logstash::params {
   $run_options = ''
   $install_prerequisites = true
   $create_user = true
-  $version = '1.1.1'
-  $jartype = 'monolithic'
+  $version = '1.1.13'
+  $jartype = 'flatjar'
   $install = 'source'
   $install_destination = '/opt'
   $install_precommand = ''

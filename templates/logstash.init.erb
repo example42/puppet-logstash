@@ -34,7 +34,6 @@ JAVAPTH=${JAVAPTH:-"/usr/local/jdk/bin"}
 # Lock and Pid files
 LOCKFILE=/var/lock/logstash
 PIDFILE=<%= scope.lookupvar('logstash::pid_file') %>
-touch $PIDFILE
 
 if [ "$LOGSTASH_USER" = "RUNASIS" ]; then
   SUBIT=""
@@ -47,7 +46,7 @@ if [ -n "$LOGSTASH_CONSOLE" -a ! -d "$LOGSTASH_CONSOLE" ]; then
   touch $LOGSTASH_CONSOLE
   if [ ! -z "$SUBIT" ]; then
     chown $LOGSTASH_USER $LOGSTASH_CONSOLE
-  fi 
+  fi
 fi
 
 if [ -n "$LOGSTASH_CONSOLE" -a ! -f "$LOGSTASH_CONSOLE" ]; then
@@ -77,10 +76,6 @@ status () {
   if [ -n "$pslist" ]; then
     echo "logstash (pid $pslist) is running result: 0"
     return 0
-  fi
-  if [ -f $PIDFILE ]; then
-    echo "logstash dead but pid file ( $PIDFILE ) exists result: 1"
-    return 1
   fi
   if [ -f $LOCKFILE ]; then
     echo "logstash dead but subsys ( $LOCKFILE ) locked result: 2"
