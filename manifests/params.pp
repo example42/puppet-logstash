@@ -24,7 +24,12 @@ class logstash::params {
   $install_destination = '/opt'
   $install_precommand = ''
   $install_postcommand = ''
-  $init_script_template = 'logstash/logstash.init.erb'
+
+  $init_script_template = $::osfamily ? {
+    'Debian' => 'logstash/logstash.init-debian.erb',
+    default  => 'logstash/logstash.init.erb',
+  }
+
   $upstart_template = 'logstash/logstash.upstart.erb'
   $base_install_source = 'http://logstash.objects.dreamhost.com/release'
   $source_dir_patterns = ''

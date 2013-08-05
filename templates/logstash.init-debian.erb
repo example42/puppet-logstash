@@ -1,0 +1,196 @@
+#!/bin/bash
+# File Managed by Puppet
+#
+# /etc/init.d/logstash -- startup script for LogStash.
+#
+# Fork of elasticsearch init script for logstash by Joe McDonagh <jmcdonagh@thesilentpenguin.com>
+# Written by Miquel van Smoorenburg <miquels@cistron.nl>.
+# Modified for Debian GNU/Linux  by Ian Murdock <imurdock@gnu.ai.mit.edu>.
+# Modified for Tomcat by Stefan Gybas <sgybas@debian.org>.
+# Modified for Tomcat6 by Thierry Carrez <thierry.carrez@ubuntu.com>.
+# Additional improvements by Jason Brittain <jason.brittain@mulesoft.com>.
+# Modified by Nicolas Huray for logstash-indexer <nicolas.huray@gmail.com>.
+# Modified by Jon Skarpeteig <jon.skarpeteig@gmail.com>.
+#
+<% if operatingsystem == 'RedHat' or operatingsystem == 'CentOS' or operatingsystem == 'Scientific' %>
+# logstash        Startup script for logstash
+#
+# chkconfig: - 85 15
+# description: logstash is a NoSQL Graph Database
+<% elsif operatingsystem == 'Debian' or operatingsystem == 'Ubuntu' or operatingsystem == 'Mint' %>
+### BEGIN INIT INFO
+# Provides:          logstash
+# Required-Start:    $all
+# Required-Stop:     $all
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts logstash
+# Description:       Starts logstash using start-stop-daemon
+### END INIT INFO
+<% end %>
+
+set -e
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
+NAME=logstash
+DESC="Logstash Daemon"
+DEFAULT=/etc/default/$NAME
+
+if [ `id -u` -ne 0 ]; then
+   echo "You need root privileges to run this script"
+   exit 1
+fi
+
+. /lib/lsb/init-functions
+
+if [ -r /etc/default/rcS ]; then
+   . /etc/default/rcS
+fi
+
+# The following variables can be overwritten in $DEFAULT
+
+# Run logstash as this user ID and group ID
+LS_USER=<%= scope.lookupvar('logstash::process_user') %>
+LS_GROUP=<%= scope.lookupvar('logstash::process_group') %>
+
+export JAVA_HOME=/usr/lib/jvm/default-java
+
+# Directory where the logstash all in one jar lives
+LS_HOME=<%= scope.lookupvar('logstash::logstash_dir') %>
+
+# Additional Java OPTS
+#LS_JAVA_OPTS=
+
+# logstash log directory
+LOG_DIR=<%= scope.lookupvar('logstash::log_dir') %>
+
+# logstash configuration (supports file, directory and glob)
+CONF=<%= scope.lookupvar('logstash::config_dir') %>
+
+# logstash log file
+LOG_FILE=<%= scope.lookupvar('logstash::log_file') %>
+
+# End of variables that can be overwritten in $DEFAULT
+
+# overwrite settings from default file
+if [ -f "$DEFAULT" ]; then
+   . "$DEFAULT"
+fi
+
+# Define other required variables
+PID_FILE=<%= scope.lookupvar('logstash::pid_file') %>
+#DAEMON=$LS_HOME/logstash.jar
+DAEMON=$LS_HOME/logstash-<%= scope.lookupvar('logstash::version') %>-<%= scope.lookupvar('logstash::jartype') %>.jar
+DAEMON_OPTS="agent -f ${CONF} --log ${LOG_FILE} <%= scope.lookupvar('logstash::run_options') %>"
+
+export LS_MIN_MEM LS_MAX_MEM
+
+# Check DAEMON exists
+if ! test -e $DAEMON; then
+   log_failure_msg "Daemon $DAEMON doesn't exist"
+   exit 1
+fi
+
+
+case "$1" in
+   start)
+      if [ -z "$JAVA_HOME" ]; then
+         log_failure_msg "no JDK found - please set JAVA_HOME"
+         exit 1
+      fi
+
+      log_daemon_msg "Starting $DESC"
+   
+      if start-stop-daemon --test --start --pidfile "$PID_FILE" \
+         --user "$LS_USER" --exec "$JAVA_HOME/bin/java" \
+      >/dev/null; then
+         # Prepare environment
+         mkdir -p "$LOG_DIR" && chown "$LS_USER":"$LS_GROUP" "$LOG_DIR"
+         touch "$PID_FILE" && chown "$LS_USER":"$LS_GROUP" "$PID_FILE"
+         ulimit -n 65535
+
+         # Start Daemon
+         start-stop-daemon --start -b --user "$LS_USER" -c "$LS_USER":"$LS_GROUP" -d "$LS_HOME" --pidfile "$PID_FILE" --make-pidfile --exec "$JAVA_HOME/bin/java" -- $LS_JAVA_OPTS -jar $DAEMON $DAEMON_OPTS
+
+         sleep 1
+
+         if start-stop-daemon --test --start --pidfile "$PID_FILE" \
+            --user "$LS_USER" --exec "$JAVA_HOME/bin/java" \
+         >/dev/null; then
+
+            if [ -f "$PID_FILE" ]; then
+               rm -f "$PID_FILE"
+            fi
+
+            log_end_msg 1
+         else
+            log_end_msg 0
+         fi
+      else
+         log_progress_msg "(already running)"
+         log_end_msg 0
+      fi
+   ;;    
+   stop)
+      log_daemon_msg "Stopping $DESC"
+
+      set +e
+
+      if [ -f "$PID_FILE" ]; then 
+         start-stop-daemon --stop --pidfile "$PID_FILE" \
+            --user "$LS_USER" \
+            --retry=TERM/20/KILL/5 >/dev/null
+
+         if [ $? -eq 1 ]; then
+            log_progress_msg "$DESC is not running but pid file exists, cleaning up"
+         elif [ $? -eq 3 ]; then
+            PID="`cat $PID_FILE`"
+            log_failure_msg "Failed to stop $DESC (pid $PID)"
+            exit 1
+         fi
+
+         rm -f "$PID_FILE"
+      else
+         log_progress_msg "(not running)"
+      fi
+
+      log_end_msg 0
+      set -e
+   ;;
+   status)
+      set +e
+
+      start-stop-daemon --test --start --pidfile "$PID_FILE" \
+         --user "$LS_USER" --exec "$JAVA_HOME/bin/java" \
+      >/dev/null 2>&1
+
+      if [ "$?" = "0" ]; then
+         if [ -f "$PID_FILE" ]; then
+            log_success_msg "$DESC is not running, but pid file exists."
+            exit 1
+         else
+            log_success_msg "$DESC is not running."
+            exit 3
+         fi
+      else
+         log_success_msg "$DESC is running with pid `cat $PID_FILE`"
+      fi
+
+      set -e
+   ;;
+   restart|force-reload)
+      if [ -f "$PID_FILE" ]; then
+         $0 stop
+         sleep 1
+      fi
+
+      $0 start
+   ;;
+   *)
+      log_success_msg "Usage: $0 {start|stop|restart|force-reload|status}"
+      exit 1
+   ;;
+esac
+
+exit 0
+
