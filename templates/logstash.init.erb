@@ -1,11 +1,11 @@
 #!/bin/sh
 # File Managed by Puppet
-<% if operatingsystem == 'RedHat' or operatingsystem == 'CentOS' or operatingsystem == 'Scientific' %>
+<% if @operatingsystem == 'RedHat' or @operatingsystem == 'CentOS' or @operatingsystem == 'Scientific' %>
 # logstash        Startup script for logstash
 #
 # chkconfig: - 85 15
 # description: logstash is a NoSQL Graph Database
-<% elsif operatingsystem == 'Debian' or operatingsystem == 'Ubuntu' or operatingsystem == 'Mint' %>
+<% elsif @operatingsystem == 'Debian' or @operatingsystem == 'Ubuntu' or @operatingsystem == 'Mint' %>
 <% end %>
 ### BEGIN INIT INFO
 # Provides:          logstash
