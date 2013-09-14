@@ -15,7 +15,7 @@ class logstash::user inherits logstash {
     managehome => false,
     home       => $logstash::logstash_dir,
     shell      => '/bin/bash',
-    before     => [Group[$logstash::process_group], Puppi::Netinstall ['netinstall_logstash']] ,
+    before     => [Group[$logstash::process_group], Class['logstash']] ,
   }
   @group { $logstash::process_group :
     ensure     => $logstash::manage_file,
