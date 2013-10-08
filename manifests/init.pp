@@ -34,9 +34,9 @@
 #
 # [*jartype*]
 #   The logstash java package type. Default monolithic
-#     - monolithic - As of 1.1.10 this is the more stable package, but it has 
+#     - monolithic - As of 1.1.10 this is the more stable package, but it has
 #       a slower startup time.
-#     - flatjar    - As of 1.1.10 this is a less stable package, but it has 
+#     - flatjar    - As of 1.1.10 this is a less stable package, but it has
 #       a much faster startup time.
 #
 # [*install*]
@@ -437,7 +437,7 @@ class logstash (
   }
 
   $logstash_dir = $logstash::install ? {
-    package => "${logstash::params::base_data_dir}",
+    package => $logstash::params::base_data_dir,
     default => "${logstash::install_destination}/logstash",
   }
 
