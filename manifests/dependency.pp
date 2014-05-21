@@ -14,7 +14,7 @@
 # Note: This class may contain resources available on the
 # Example42 modules set
 #
-class logstash::prerequisites {
+class logstash::dependency {
 
   include java
 

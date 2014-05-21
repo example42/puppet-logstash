@@ -16,7 +16,6 @@ class logstash::params {
   # ## Module specific parameters
   $run_mode = 'agent'
   $run_options = ''
-  $install_prerequisites = true
   $create_user = true
   $version = '1.1.13'
   $jartype = 'flatjar'
@@ -83,6 +82,11 @@ class logstash::params {
     default => 'root',
   }
 
+  $config_file_init = $::operatingsystem ? {
+    /(?i:Debian|Ubuntu|Mint)/ => '/etc/default/logstash',
+    default                   => '/etc/sysconfig/logstash',
+  }
+
   $pid_file = $::operatingsystem ? {
     default => '/var/run/logstash.pid',
   }
@@ -109,6 +113,7 @@ class logstash::params {
 
   # General Settings
   $my_class = ''
+  $dependency_class = 'logstash::dependency'
   $source = ''
   $source_dir = ''
   $source_dir_purge = false
@@ -118,6 +123,8 @@ class logstash::params {
   $absent = false
   $disable = false
   $disableboot = false
+  $config_file_init_source = ''
+  $config_file_init_template = ''
 
   # ## General module variables that can have a site or per module default
   $monitor = false
