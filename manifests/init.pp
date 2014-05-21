@@ -17,12 +17,6 @@
 # [*maxopenfiles*]
 #   The ulimit settings for max open files for logstash.
 #
-# [*install_prerequisites*]
-#   Set to false if you don't want install this module's prerequisites.
-#   (It may be useful if the resources provided the prerequisites are already
-#   managed by some other modules). Default: true
-#   Prerequisites are based on Example42 modules set.
-#
 # [*create_user*]
 #   Set to true if you want the module to create the process user of logstash
 #   (as defined in $logstagh::process_user). Default: true
@@ -96,6 +90,9 @@
 #   Name of a custom class to autoload to manage module's customizations
 #   If defined, logstash class will automatically "include $my_class"
 #   Can be defined also by the variable $logstash_myclass
+#
+# [*dependency_class*]
+#   Name of the class tha provides third modules dependencies.
 #
 # [*source*]
 #   Sets the content of source parameter for main configuration file
@@ -288,7 +285,6 @@ class logstash (
   $run_mode              = params_lookup('run_mode'),
   $run_options           = params_lookup('run_options'),
   $maxopenfiles          = params_lookup('maxopenfiles'),
-  $install_prerequisites = params_lookup('install_prerequisites'),
   $create_user           = params_lookup('create_user'),
   $version               = params_lookup('version'),
   $jartype               = params_lookup('jartype'),
@@ -302,6 +298,7 @@ class logstash (
   $use_upstart           = params_lookup('use_upstart'),
   $source_dir_patterns   = params_lookup('source_dir_patterns'),
   $my_class              = params_lookup('my_class'),
+  $dependency_class      = params_lookup( 'dependency_class' ),
   $source                = params_lookup('source'),
   $source_dir            = params_lookup('source_dir'),
   $source_dir_purge      = params_lookup('source_dir_purge'),
@@ -335,6 +332,8 @@ class logstash (
   $config_file_owner     = params_lookup('config_file_owner'),
   $config_file_group     = params_lookup('config_file_group'),
   $config_file_init      = params_lookup('config_file_init'),
+  $config_file_init_source    = params_lookup( 'config_file_init_source' ),
+  $config_file_init_template  = params_lookup( 'config_file_init_template' ),
   $pid_file              = params_lookup('pid_file'),
   $data_dir              = params_lookup('data_dir'),
   $log_dir               = params_lookup('log_dir'),
@@ -344,7 +343,6 @@ class logstash (
   # ## VARIABLES
 
   # ## Variables reduced to booleans
-  $bool_install_prerequisites = any2bool($install_prerequisites)
   $bool_use_upstart = any2bool($use_upstart)
   $bool_create_user = any2bool($create_user)
   $bool_source_dir_purge = any2bool($source_dir_purge)
@@ -430,6 +428,16 @@ class logstash (
     default => $logstash::source_dir,
   }
 
+  $manage_config_file_init_source = $logstash::config_file_init_source ? {
+    ''        => undef,
+    default   => $logstash::config_file_init_source,
+  }
+
+  $manage_config_file_init_template = $logstash::config_file_init_template ? {
+    ''        => undef,
+    default   => template($logstash::config_file_init_template),
+  }
+
   # ## Calculations of variables whose value depends on different params
   $real_install_source = $logstash::install_source ? {
     ''      => "${logstash::params::base_install_source}/logstash-${logstash::version}-${logstash::jartype}.jar",
@@ -472,6 +480,22 @@ class logstash (
     }
   }
 
+  if ($logstash::config_file_init_source or $logstash::config_file_init_template) {
+    file { 'logstash.init.conf':
+      ensure  => $logstash::manage_file,
+      path    => $logstash::config_file_init,
+      mode    => $logstash::config_file_mode,
+      owner   => $logstash::config_file_owner,
+      group   => $logstash::config_file_group,
+      require => Class['logstash::install'],
+      notify  => $logstash::manage_service_autorestart,
+      source  => $logstash::manage_config_file_init_source,
+      content => $logstash::manage_config_file_init_template,
+      replace => $logstash::manage_file_replace,
+      audit   => $logstash::manage_audit,
+    }
+  }
+
   # The whole logstash configuration directory can be recursively overriden
   if $logstash::source_dir or $logstash::install != 'package' {
     file { 'logstash.dir':
@@ -489,14 +513,14 @@ class logstash (
     }
   }
 
-  # ## Include prerequisites class
-  if $logstash::bool_install_prerequisites {
-    include logstash::prerequisites
-  }
-
   # ## Include custom class if $my_class is set
   if $logstash::my_class {
     include $logstash::my_class
+  }
+
+  ### Include dependencies provided by other Example42 modules
+  if $dependency_class {
+    require $logstash::dependency_class
   }
 
   # ## Provide puppi data, if enabled ( puppi => true )
