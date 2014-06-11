@@ -134,7 +134,7 @@ class logstash::params {
   $puppi_helper = 'java'
   $firewall = false
   $firewall_tool = ''
-  $firewall_src = '0.0.0.0/24'
+  $firewall_src = '0.0.0.0/0'
   $firewall_dst = $::ipaddress
   $debug = false
   $audit_only = false
