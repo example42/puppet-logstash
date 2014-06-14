@@ -6,6 +6,7 @@ fixtures:
     "iptables": "git://github.com/example42/puppet-iptables.git"
     "concat": "git://github.com/example42/puppet-concat.git"
     "java": "git://github.com/example42/puppet-java.git"
-  symlinks:
+    "stdlib": "git://github.com/puppetlabs/puppetlabs-stdlib.git"
+symlinks:
     "logstash": "#{source_dir}"
 
