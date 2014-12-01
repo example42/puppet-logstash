@@ -339,7 +339,9 @@ class logstash (
   $log_dir               = params_lookup('log_dir'),
   $log_file              = params_lookup('log_file'),
   $port                  = params_lookup('port'),
-  $protocol              = params_lookup('protocol')) inherits logstash::params {
+  $protocol              = params_lookup('protocol'),
+  $configs               = params_lookup('configs')
+  ) inherits logstash::params {
   # ## VARIABLES
 
   # ## Variables reduced to booleans
@@ -521,6 +523,12 @@ class logstash (
   ### Include dependencies provided by other Example42 modules
   if $dependency_class {
     require $logstash::dependency_class
+  }
+
+  ### Create instances for integration with Hiera
+  if $configs != {} {
+    validate_hash($configs)
+    create_resources(logstash::config, $configs)
   }
 
   # ## Provide puppi data, if enabled ( puppi => true )
