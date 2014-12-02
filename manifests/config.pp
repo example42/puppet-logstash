@@ -39,7 +39,7 @@ define logstash::config (
     default   => template($template),
   }
 
-  require logstash
+  include logstash
 
   file { "logstash.conf_${name}":
     ensure  => $ensure,
