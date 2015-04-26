@@ -33,14 +33,14 @@ class logstash::install inherits logstash {
       include logstash::skel
 
       puppi::netinstall { 'netinstall_logstash':
-        url                 => $logstash::real_install_source,
-        destination_dir     => $logstash::logstash_dir,
-        extract_command     => 'cp ',
-        preextract_command  => $logstash::install_precommand,
-        extracted_dir       => $created_file,
-        owner               => $logstash::process_user,
-        group               => $logstash::process_user,
-        before              => File ['logstash_link'],
+        url                => $logstash::real_install_source,
+        destination_dir    => $logstash::logstash_dir,
+        extract_command    => 'cp ',
+        preextract_command => $logstash::install_precommand,
+        extracted_dir      => $created_file,
+        owner              => $logstash::process_user,
+        group              => $logstash::process_user,
+        before             => File ['logstash_link'],
       }
 
       file { 'logstash_link':

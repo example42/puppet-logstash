@@ -17,22 +17,22 @@ class logstash::service inherits logstash {
 
     package: {
       service { 'logstash':
-        ensure     => $logstash::manage_service_ensure,
-        name       => $logstash::service,
-        enable     => $logstash::manage_service_enable,
-        hasstatus  => $logstash::service_status,
-        pattern    => $logstash::process,
-        require    => Package['logstash'],
+        ensure    => $logstash::manage_service_ensure,
+        name      => $logstash::service,
+        enable    => $logstash::manage_service_enable,
+        hasstatus => $logstash::service_status,
+        pattern   => $logstash::process,
+        require   => Package['logstash'],
       }
     }
 
     source,puppi: {
       service { 'logstash':
-        ensure     => $logstash::manage_service_ensure,
-        name       => $logstash::service,
-        enable     => $logstash::manage_service_enable,
-        hasstatus  => $logstash::service_status,
-        pattern    => $logstash::process,
+        ensure    => $logstash::manage_service_ensure,
+        name      => $logstash::service,
+        enable    => $logstash::manage_service_enable,
+        hasstatus => $logstash::service_status,
+        pattern   => $logstash::process,
       }
 
     if $logstash::bool_use_upstart == true {
