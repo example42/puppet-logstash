@@ -40,13 +40,13 @@ class logstash::install inherits logstash {
         extracted_dir      => $created_file,
         owner              => $logstash::process_user,
         group              => $logstash::process_user,
-        before             => File ['logstash_link'],
+        before             => File['logstash_link'],
       }
 
       file { 'logstash_link':
         ensure  => "${logstash::logstash_dir}/${created_file}" ,
         path    => "${logstash::logstash_dir}/logstash.jar" ,
-        require => Puppi::Netinstall ['netinstall_logstash'],
+        require => Puppi::Netinstall['netinstall_logstash'],
       }
 
     }
@@ -69,13 +69,13 @@ class logstash::install inherits logstash {
         check_deploy             => false,
         run_checks               => false,
         enable                   => true,
-        before                   => File ['logstash_link'],
+        before                   => File['logstash_link'],
       }
 
       file { 'logstash_link':
         ensure  => "${logstash::logstash_dir}/${created_file}" ,
         path    => "${logstash::logstash_dir}/logstash.jar" ,
-        require => Puppi::Project::War ['logstash'],
+        require => Puppi::Project::War['logstash'],
       }
 
     }
